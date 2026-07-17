@@ -183,11 +183,12 @@ const App = (() => {
     cart = [];
     selectedPayment = null;
     selectedDiscountPct = 0;
+    customDiscountActive = false;
     document.getElementById('cashReceived').value = '';
     document.getElementById('orderNote').value = '';
     document.querySelectorAll('.pay-btn').forEach((b) => b.classList.remove('selected'));
     document.querySelectorAll('.disc-btn').forEach((b) => b.classList.remove('active'));
-    renderCart();
+    renderCart();       // re-renders list and calls updateTotals() -> zeroes all display values
     refreshCurrentGrid();
   }
 
@@ -377,11 +378,12 @@ const App = (() => {
     cart = [];
     selectedPayment = null;
     selectedDiscountPct = 0;
+    customDiscountActive = false;
     document.getElementById('cashReceived').value = '';
     document.getElementById('orderNote').value = '';
     document.querySelectorAll('.pay-btn').forEach((b) => b.classList.remove('selected'));
     document.querySelectorAll('.disc-btn').forEach((b) => b.classList.remove('active'));
-    renderCart();
+    renderCart();       // zeroes totals display and clears cart list
     refreshHeader();
     refreshCurrentGrid();
   }
@@ -462,7 +464,13 @@ const App = (() => {
     document.getElementById('printReceiptBtn').addEventListener('click', Receipt.printReceipt);
     document.getElementById('downloadPdfBtn').addEventListener('click', Receipt.downloadPdf);
     document.getElementById('sharePdfBtn').addEventListener('click', Receipt.sharePdf);
-    document.getElementById('newSaleBtn').addEventListener('click', () => document.getElementById('receiptModal').classList.add('hidden'));
+
+    // FIX: New Sale button now fully resets cart, totals, discounts, and payment
+    // in addition to closing the receipt modal.
+    document.getElementById('newSaleBtn').addEventListener('click', () => {
+      document.getElementById('receiptModal').classList.add('hidden');
+      resetOrderState();
+    });
 
     document.getElementById('settingsBtn').addEventListener('click', Settings.open);
     document.getElementById('pinSubmitBtn').addEventListener('click', Settings.submitPin);
