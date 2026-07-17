@@ -188,7 +188,17 @@ const App = (() => {
     document.getElementById('orderNote').value = '';
     document.querySelectorAll('.pay-btn').forEach((b) => b.classList.remove('selected'));
     document.querySelectorAll('.disc-btn').forEach((b) => b.classList.remove('active'));
-    renderCart();       // re-renders list and calls updateTotals() -> zeroes all display values
+
+    // FIX: Explicitly zero all summary display fields so they reset immediately
+    // regardless of any currency/settings timing issue.
+    const s = Storage.getSettings();
+    const cur = s.currency || '';
+    document.getElementById('subtotalVal').textContent = cur + '0.00';
+    document.getElementById('discountVal').textContent = cur + '0.00';
+    document.getElementById('grandTotalVal').textContent = cur + '0.00';
+    document.getElementById('balanceVal').textContent = cur + '0.00';
+
+    renderCart();       // re-renders list and calls updateTotals() -> confirms zeroed values
     refreshCurrentGrid();
   }
 
