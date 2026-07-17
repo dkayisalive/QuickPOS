@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>QuickPOS - Takeaway POS</title>
+<meta name="theme-color" content="#ff5722" />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" href="icons/icon-192.png" />
+<link rel="apple-touch-icon" href="icons/icon-192.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ===================== TOP BAR ===================== -->
+<header class="topbar">
+  <div class="topbar-left">
+    <img id="restaurantLogo" class="logo" src="icons/icon-192.png" alt="Logo" />
+    <div class="rest-info">
+      <span id="restaurantName" class="rest-name">Restaurant</span>
+      <span id="receiptNo" class="receipt-no">POS-000001</span>
+    </div>
+  </div>
+  <div class="topbar-center">
+    <input id="searchBox" type="text" placeholder="Search product... (e.g. chi)" class="search-box" autocomplete="off" />
+  </div>
+  <div class="topbar-right">
+    <span id="clockDate" class="clock-date"></span>
+    <span id="clockTime" class="clock-time"></span>
+    <button id="darkModeBtn" class="icon-btn" title="Toggle dark mode">🌙</button>
+    <button id="settingsBtn" class="icon-btn" title="Admin Settings">⚙️</button>
+    <button id="historyBtn" class="icon-btn" title="Sales History">🧾</button>
+  </div>
+</header>
+
+<!-- ===================== MAIN LAYOUT ===================== -->
+<main class="main-layout">
+
+  <!-- LEFT: Categories -->
+  <nav id="categoryBar" class="category-bar">
+    <!-- categories injected by app.js -->
+  </nav>
+
+  <!-- CENTER: Products -->
+  <section class="product-area">
+    <div class="section-label" id="productSectionLabel">Favorites</div>
+    <div id="productGrid" class="product-grid">
+      <!-- product buttons injected by app.js -->
+    </div>
+  </section>
+
+  <!-- RIGHT: Cart -->
+  <aside class="cart-panel">
+    <div class="cart-header">
+      <span>Cart</span>
+      <button id="clearCartBtn" class="text-btn">Clear</button>
+    </div>
+    <div id="cartList" class="cart-list">
+      <div class="cart-empty" id="cartEmptyMsg">Cart is empty. Tap a product to add.</div>
+    </div>
+
+    <div class="cart-note">
+      <input id="orderNote" type="text" placeholder="Note (e.g. No onions, Extra spicy)" />
+    </div>
+
+    <div class="discount-row" id="discountRow">
+      <span class="disc-label">Discount:</span>
+      <button class="disc-btn" data-pct="5">5%</button>
+      <button class="disc-btn" data-pct="10">10%</button>
+      <button class="disc-btn" data-pct="15">15%</button>
+      <button class="disc-btn" data-pct="20">20%</button>
+      <button class="disc-btn" id="customDiscBtn">Custom</button>
+    </div>
+
+    <div class="cart-totals">
+      <div class="total-line"><span>Subtotal</span><span id="subtotalVal">Rs.0.00</span></div>
+      <div class="total-line"><span>Discount</span><span id="discountVal">Rs.0.00</span></div>
+      <div class="total-line grand"><span>Grand Total</span><span id="grandTotalVal">Rs.0.00</span></div>
+      <div class="total-line"><span>Cash Received</span>
+        <input id="cashReceived" type="number" inputmode="decimal" placeholder="0.00" />
+      </div>
+      <div class="total-line balance"><span>Balance</span><span id="balanceVal">Rs.0.00</span></div>
+    </div>
+
+    <div class="payment-methods">
+      <button class="pay-btn" data-method="Cash">💵 Cash</button>
+      <button class="pay-btn" data-method="Card">💳 Card</button>
+      <button class="pay-btn" data-method="QR">📱 QR</button>
+      <button class="pay-btn" data-method="Mixed">🔀 Mixed</button>
+    </div>
+
+    <button id="completeSaleBtn" class="complete-sale-btn" disabled>Complete Sale</button>
+  </aside>
+</main>
+
+<!-- ===================== QUANTITY EDIT MODAL ===================== -->
+<div id="qtyModal" class="modal hidden">
+  <div class="modal-box">
+    <h3>Edit Quantity</h3>
+    <input id="qtyInput" type="number" min="1" />
+    <div class="modal-actions">
+      <button id="qtyCancelBtn" class="btn-secondary">Cancel</button>
+      <button id="qtySaveBtn" class="btn-primary">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== CUSTOM DISCOUNT MODAL ===================== -->
+<div id="discModal" class="modal hidden">
+  <div class="modal-box">
+    <h3>Custom Discount %</h3>
+    <input id="discInput" type="number" min="0" max="100" />
+    <div class="modal-actions">
+      <button id="discCancelBtn" class="btn-secondary">Cancel</button>
+      <button id="discSaveBtn" class="btn-primary">Apply</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== RECEIPT / PREVIEW MODAL ===================== -->
+<div id="receiptModal" class="modal hidden">
+  <div class="modal-box receipt-box">
+    <div id="receiptContent" class="receipt-content"></div>
+    <div class="modal-actions">
+      <button id="printReceiptBtn" class="btn-secondary">🖨️ Print</button>
+      <button id="downloadPdfBtn" class="btn-secondary">⬇️ PDF</button>
+      <button id="sharePdfBtn" class="btn-secondary">📤 Share</button>
+      <button id="newSaleBtn" class="btn-primary">New Sale</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== ADMIN SETTINGS MODAL ===================== -->
+<div id="settingsModal" class="modal hidden">
+  <div class="modal-box settings-box">
+    <h3>Admin Settings</h3>
+    <div id="pinGate">
+      <p>Enter Admin PIN</p>
+      <input id="pinInput" type="password" inputmode="numeric" maxlength="6" />
+      <button id="pinSubmitBtn" class="btn-primary">Unlock</button>
+      <p id="pinError" class="error-text hidden">Incorrect PIN</p>
+    </div>
+    <div id="settingsPanel" class="hidden">
+      <div class="settings-tabs">
+        <button class="tab-btn active" data-tab="general">General</button>
+        <button class="tab-btn" data-tab="categories">Categories</button>
+        <button class="tab-btn" data-tab="products">Products</button>
+        <button class="tab-btn" data-tab="integration">Integration</button>
+      </div>
+
+      <div class="tab-content" id="tab-general">
+        <label>Restaurant Name<input id="setRestName" type="text" /></label>
+        <label>Address<input id="setAddress" type="text" /></label>
+        <label>Phone<input id="setPhone" type="text" /></label>
+        <label>Tax %<input id="setTax" type="number" /></label>
+        <label>Currency Symbol<input id="setCurrency" type="text" /></label>
+        <label>Logo URL<input id="setLogoUrl" type="text" /></label>
+        <label>Cashier Name<input id="setCashierName" type="text" /></label>
+        <label>Admin PIN (change)<input id="setPin" type="password" maxlength="6" /></label>
+        <button id="saveGeneralBtn" class="btn-primary">Save General Settings</button>
+      </div>
+
+      <div class="tab-content hidden" id="tab-categories">
+        <div id="catAdminList"></div>
+        <div class="add-row">
+          <input id="newCatName" type="text" placeholder="New category name" />
+          <button id="addCatBtn" class="btn-primary">Add Category</button>
+        </div>
+      </div>
+
+      <div class="tab-content hidden" id="tab-products">
+        <div id="prodAdminList"></div>
+        <div class="add-row">
+          <input id="newProdName" type="text" placeholder="Product name" />
+          <input id="newProdPrice" type="number" placeholder="Price" />
+          <select id="newProdCat"></select>
+          <label class="fav-check"><input id="newProdFav" type="checkbox" /> Favorite</label>
+          <button id="addProdBtn" class="btn-primary">Add Product</button>
+        </div>
+      </div>
+
+      <div class="tab-content hidden" id="tab-integration">
+        <label>Google Apps Script URL<input id="setScriptUrl" type="text" /></label>
+        <button id="testConnBtn" class="btn-secondary">Test Connection</button>
+        <p id="connStatus"></p>
+        <button id="exportCsvBtn" class="btn-secondary">Export Local Sales CSV</button>
+        <button id="syncNowBtn" class="btn-secondary">Sync Pending Sales Now</button>
+        <p id="pendingCount"></p>
+      </div>
+
+      <button id="closeSettingsBtn" class="btn-secondary" style="margin-top:12px;">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== SALES HISTORY MODAL ===================== -->
+<div id="historyModal" class="modal hidden">
+  <div class="modal-box history-box">
+    <h3>Sales History</h3>
+    <input id="historySearch" type="text" placeholder="Search by receipt no..." />
+    <div id="historyList" class="history-list"></div>
+    <button id="closeHistoryBtn" class="btn-secondary">Close</button>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="storage.js"></script>
+<script src="api.js"></script>
+<script src="receipt.js"></script>
+<script src="settings.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
