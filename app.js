@@ -367,8 +367,10 @@ const App = (() => {
     Storage.cacheSale(sale);
 
     Receipt.renderToModal(sale);
-    resetOrderState();
+    // FIX: reset isSubmitting BEFORE resetOrderState so validateCompleteButton
+    // sees the correct state and properly re-enables the button for the next sale.
     isSubmitting = false;
+    resetOrderState();
   }
 
   function resetOrderState() {
@@ -395,6 +397,9 @@ const App = (() => {
   function applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
     Storage.saveTheme(theme);
+    // FIX: update icon to reflect current theme
+    const btn = document.getElementById('darkModeBtn');
+    if (btn) btn.textContent = theme === 'dark' ? '☀️' : '🌙';
   }
 
   function toggleTheme() {

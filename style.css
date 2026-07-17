@@ -25,6 +25,34 @@
   --shadow:0 2px 6px rgba(0,0,0,0.4);
 }
 
+/* FIX: dark mode overrides for elements with hardcoded colors */
+[data-theme="dark"] .receipt-content {
+  background: #1e1e1e;
+  color: #f0f0f0;
+}
+[data-theme="dark"] .qty-badge {
+  background: #444;
+  color: #fff;
+}
+[data-theme="dark"] .topbar {
+  border-bottom: 1px solid var(--border);
+}
+[data-theme="dark"] .search-box {
+  background: #2a2a2a;
+  border-color: #444;
+}
+[data-theme="dark"] .cart-note input,
+[data-theme="dark"] .total-line input {
+  background: #2a2a2a;
+  border-color: #444;
+}
+[data-theme="dark"] .modal-box input,
+[data-theme="dark"] .modal-box select {
+  background: #2a2a2a;
+  border-color: #444;
+  color: var(--text);
+}
+
 *{box-sizing:border-box; margin:0; padding:0;}
 html,body{height:100%; font-family:'Segoe UI',Roboto,Arial,sans-serif; background:var(--bg); color:var(--text);}
 button{font-family:inherit; cursor:pointer; border:none; background:none;}
@@ -69,7 +97,10 @@ input{font-family:inherit;}
   color:#fff; font-weight:700; font-size:15px; box-shadow:var(--shadow);
   display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
   user-select:none; -webkit-user-select:none; touch-action:manipulation;
+  /* UI: tactile press feedback */
+  transition: transform 0.1s, box-shadow 0.1s;
 }
+.prod-btn:active { transform: scale(0.96); box-shadow: none; }
 .prod-btn .price{font-size:13px; font-weight:600; opacity:0.95;}
 .prod-btn .qty-badge{
   position:absolute; top:-6px; right:-6px; background:#fff; color:#000; border-radius:50%;
@@ -86,7 +117,13 @@ input{font-family:inherit;}
 .text-btn{color:var(--danger); font-size:13px; font-weight:600;}
 .cart-list{flex:1; overflow-y:auto; min-height:80px;}
 .cart-empty{color:var(--text-muted); font-size:13px; text-align:center; padding:20px 0;}
-.cart-item{display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border); gap:6px;}
+.cart-item{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:8px 4px; border-bottom:1px solid var(--border); gap:6px;
+  border-radius:6px; transition: background 0.15s;
+}
+/* UI: cart row hover highlight */
+.cart-item:hover { background: var(--bg); }
 .cart-item-info{flex:1; min-width:0;}
 .cart-item-name{font-weight:600; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 .cart-item-sub{font-size:12px; color:var(--text-muted);}
@@ -110,7 +147,8 @@ input{font-family:inherit;}
 .total-line input{width:110px; padding:6px 8px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); text-align:right;}
 
 .payment-methods{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:10px 0;}
-.pay-btn{background:var(--bg); border:2px solid var(--border); border-radius:12px; padding:12px 6px; font-weight:700; font-size:14px;}
+/* UI: pay-btn uses surface color so unselected state has better contrast */
+.pay-btn{background:var(--surface); border:2px solid var(--border); border-radius:12px; padding:12px 6px; font-weight:700; font-size:14px; color:var(--text);}
 .pay-btn.selected{background:var(--primary); color:#fff; border-color:var(--primary);}
 
 .complete-sale-btn{
@@ -164,7 +202,8 @@ input{font-family:inherit;}
 /* ---------- RESPONSIVE ---------- */
 @media (max-width: 900px){
   .main-layout{grid-template-columns:80px 1fr; grid-template-rows:auto auto;}
-  .cart-panel{grid-column:1/3; max-height:46vh;}
+  /* UI: slightly more cart height on tablet */
+  .cart-panel{grid-column:1/3; max-height:52vh;}
 }
 @media (max-width:600px){
   .topbar{flex-wrap:wrap;}
@@ -173,6 +212,8 @@ input{font-family:inherit;}
   .main-layout{grid-template-columns:64px 1fr; padding:6px; gap:6px;}
   .cat-btn{font-size:11px; min-height:52px;}
   .prod-btn{min-height:76px; font-size:13px;}
+  /* FIX: on mobile, toast at top so it doesn't cover Complete Sale button */
+  .toast { bottom: auto; top: 70px; }
 }
 
 /* Print styles - only receipt visible when printing */
